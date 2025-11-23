@@ -1,0 +1,84 @@
+services:
+  node1:
+    build: ./raft
+    container_name: raft_node1
+    hostname: raft_node1
+    environment:
+      - NODE_ID=node1
+      - PORT=50061
+      - CLIENT_PORT=50151
+      - ALL_NODE_IDS=raft_node1:50061,raft_node2:50062,raft_node3:50063,raft_node4:50064,raft_node5:50065
+    command: sh -c "sleep 5 && python -u raft_node.py"
+    ports:
+      - "50061:50061"
+      - "50151:50151"
+    networks:
+      - raft-network
+
+  node2:
+    build: ./raft
+    container_name: raft_node2
+    hostname: raft_node2
+    environment:
+      - NODE_ID=node2
+      - PORT=50062
+      - CLIENT_PORT=50152
+      - ALL_NODE_IDS=raft_node1:50061,raft_node2:50062,raft_node3:50063,raft_node4:50064,raft_node5:50065
+    command: sh -c "sleep 5 && python -u raft_node.py"
+    ports:
+      - "50062:50062"
+      - "50152:50152"
+    networks:
+      - raft-network
+
+  node3:
+    build: ./raft
+    container_name: raft_node3
+    hostname: raft_node3
+    environment:
+      - NODE_ID=node3
+      - PORT=50063
+      - CLIENT_PORT=50153
+      - ALL_NODE_IDS=raft_node1:50061,raft_node2:50062,raft_node3:50063,raft_node4:50064,raft_node5:50065
+    command: sh -c "sleep 5 && python -u raft_node.py"
+    ports:
+      - "50063:50063"
+      - "50153:50153"
+    networks:
+      - raft-network
+
+  node4:
+    build: ./raft
+    container_name: raft_node4
+    hostname: raft_node4
+    environment:
+      - NODE_ID=node4
+      - PORT=50064
+      - CLIENT_PORT=50154
+      - ALL_NODE_IDS=raft_node1:50061,raft_node2:50062,raft_node3:50063,raft_node4:50064,raft_node5:50065
+    command: sh -c "sleep 5 && python -u raft_node.py"
+    ports:
+      - "50064:50064"
+      - "50154:50154"
+    networks:
+      - raft-network
+
+  node5:
+    build: ./raft
+    container_name: raft_node5
+    hostname: raft_node5
+    environment:
+      - NODE_ID=node5
+      - PORT=50065
+      - CLIENT_PORT=50155
+      - ALL_NODE_IDS=raft_node1:50061,raft_node2:50062,raft_node3:50063,raft_node4:50064,raft_node5:50065
+    command: sh -c "sleep 5 && python -u raft_node.py"
+    ports:
+      - "50065:50065"
+      - "50155:50155"
+    networks:
+      - raft-network
+
+networks:
+  raft-network:
+    driver: bridge

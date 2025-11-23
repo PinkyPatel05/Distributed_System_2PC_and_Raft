@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package twopc;
+
+option go_package = "./twopc";
+
+// ============================
+// COORDINATOR SERVICES
+// ============================
+
+// Service for client to initiate transactions with coordinator
+service TwoPhaseCommitCoordinator {
+  // Client initiates a distributed transaction
+  rpc InitiateTransaction(TransactionRequest) returns (TransactionResponse);
+}
+
+// =====================================================
+// PARTICIPANT SERVICES (External - Between Nodes)
+// =====================================================
+
+// Service for coordinator to communicate with participant's voting phase
+service ParticipantVotingPhase {
+  // Coordinator sends vote request to participant's voting phase
+  rpc VoteRequest(VoteRequestMessage) returns (VoteResponseMessage);
+}
+
+// Service for coordinator to communicate with participant's decision phase
+service ParticipantDecisionPhase {
+  // Coordinator sends final decision to participant's decision phase
+  rpc GlobalDecision(GlobalDecisionMessage) returns (DecisionAck);
+}
+
+// =======================================================
+// INTRA-NODE SERVICES (Within Same Container)
+// =======================================================
+
+// Service for voting phase to communicate with decision phase within same node
+service IntraNodeDecisionPhase {
+  // Voting phase notifies decision phase about its vote
+  rpc NotifyVote(VoteNotification) returns (VoteAck);
+  
+  // Voting phase sends coordinator's decision to decision phase
+  rpc ReceiveGlobalDecision(GlobalDecisionMessage) returns (DecisionAck);
+}
+
+// =========================================
+// MESSAGES - Transaction Initiation
+// =========================================
+
+message TransactionRequest {
+  string transaction_id = 1;
+  string operation_type = 2; // e.g., "BOOK_RIDE", "CANCEL_RIDE"
+  map<string, string> parameters = 3;
+}
+
+message TransactionResponse {
+  string transaction_id = 1;
+  bool success = 2;
+  string message = 3;
+  int64 timestamp = 4;
+  string final_decision = 5; // "GLOBAL_COMMIT" or "GLOBAL_ABORT"
+}
+
+// =====================================
+// MESSAGES - Voting Phase
+// =====================================
+
+message VoteRequestMessage {
+  string transaction_id = 1;
+  string operation_type = 2;
+  map<string, string> parameters = 3;
+  int64 timestamp = 4;
+}
+
+message VoteResponseMessage {
+  string transaction_id = 1;
+  string participant_id = 2;
+  VoteDecision decision = 3;
+  string reason = 4;
+}
+
+enum VoteDecision {
+  VOTE_COMMIT = 0;
+  VOTE_ABORT = 1;
+}
+
+// =======================================
+// MESSAGES - Decision Phase
+// =======================================
+
+message GlobalDecisionMessage {
+  string transaction_id = 1;
+  FinalDecision decision = 2;
+  int64 timestamp = 3;
+}
+
+enum FinalDecision {
+  GLOBAL_COMMIT = 0;
+  GLOBAL_ABORT = 1;
+}
+
+message DecisionAck {
+  string transaction_id = 1;
+  string participant_id = 2;
+  bool acknowledged = 3;
+  string status = 4; // "COMMITTED" or "ABORTED"
+}
+
+// ===========================================
+// MESSAGES - Intra-Node Communication
+// ===========================================
+
+message VoteNotification {
+  string transaction_id = 1;
+  VoteDecision vote = 2;
+  string operation_type = 3;
+  map<string, string> parameters = 4;
+}
+
+message VoteAck {
+  string transaction_id = 1;
+  bool acknowledged = 2;
+}
+
+

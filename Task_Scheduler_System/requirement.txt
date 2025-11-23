@@ -1,0 +1,37 @@
+Part 1-
+Implement the leader election of a simplified version of Raft on one of the three selected implementations. 
+
+You should define the needed gRPC data structure and service methods (RPCs) in a new proto file. 
+
+You should implement the two timeout settings in Raft: heartbeat timeout and election timeout. Heartbeat timeout should be set at 1 second for all the processes. The election timeout should be chosen randomly from a fixed interval, [1.5 seconds, 3 seconds], for each single process/node. 
+
+At the start of your program, all processes/nodes should begin in the follower state. If a follower does not receive a heartbeat from a leader within its randomized election timeout, it assumes that no leader currently exists and transitions to the candidate state.
+
+As a candidate, the process increments its term, votes for itself, and sends RequestVote RPCs to the other processes in the cluster. If it receives a majority of votes, it becomes the leader and begins sending periodic AppendEntries RPCs to all the other processes as heartbeat. If another candidate wins the election first or the node fails to gather a majority, it reverts to the follower state and waits for further heartbeats.
+
+For each RPC method being called, you should print a message on the client side in the format of Node <node_id> sends RPC <rpc_name> to Node <node_id>. On the server side, you should also print a message in the format of Node <node_id> runs RPC <rpc_name> called by Node <node_id>.
+
+Finally, you should containerize your implementation for each node and ensure different containerized nodes (at least 5 nodes) can communicate with each other.
+
+Part 2-
+Implement the log replication of a simplified version of Raft on top of the same selected implementation in Q3. 
+
+You should define the needed gRPC data structure and service methods (RPCs) in the same proto file that you have created in Q3. You should implement the following actions:
+
+Each process/node should maintain a log of operations. Log contains operations: (1) have already been committed; (2) are pending.
+
+For each client's request for executing operation o,
+
+The current leader (1) receives request, (2) append <o, t, k+1> to log and (3) sends its entire log to all the other servers, along with current value of c (c is the index of the most recently committed operation) on next heartbeat.
+Each follower copies the entire log and returns ACK to leader. Each follower should check and execute operations to make sure all operations up to and including index c have already been executed.
+When leader receives a majority of ACKs, leader executes all the pending executions, returns the results to the client, and increments c.
+For each RPC method being called, you should print a message on the client side in the format of Node <node_id> sends RPC <rpc_name> to Node <node_id>. On the server side, you should also print a message in the format of Node <node_id> runs RPC <rpc_name> called by Node <node_id>.
+
+Note that since a client can connect to any one of the processes (not necessarily the leader) and send its request, you should implement that the receiver forwards the request to the leader.
+
+Finally, you should containerize your implementation for each node and ensure different containerized nodes (at least 5 nodes) can communicate with each other.
+
+Part 3 -
+You should design and implement 5 different test cases for your Raft implementation. For example, a new node entering the system (no matter which node you implement) should be considered as one test case. 
+
+You should document them and include the captured screenshots of their executions in the final report.

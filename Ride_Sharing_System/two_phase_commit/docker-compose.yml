@@ -1,0 +1,109 @@
+services:
+  # Coordinator Node
+  coordinator:
+    build:
+      context: .
+      dockerfile: Dockerfile.coordinator
+    container_name: 2pc_coordinator
+    ports:
+      - "50050:50050"
+    networks:
+      - twopc-network
+    environment:
+      - COORDINATOR_PORT=50050
+      - PARTICIPANT_ADDRESSES=participant1:50051,participant2:50052,participant3:50053,participant4:50054,participant5:50055
+    depends_on:
+      - participant1
+      - participant2
+      - participant3
+      - participant4
+      - participant5
+
+  # Participant 1: Driver Service
+  participant1:
+    build:
+      context: .
+      dockerfile: Dockerfile.participant
+    container_name: participant_driver_service
+    ports:
+      - "50051:50051"
+      - "60051:60051"
+    networks:
+      - twopc-network
+    environment:
+      - VOTING_PORT=50051
+      - DECISION_PORT=60051
+      - PARTICIPANT_ID=PARTICIPANT_1
+      - SERVICE_NAME=DriverService
+
+  # Participant 2: Payment Service
+  participant2:
+    build:
+      context: .
+      dockerfile: Dockerfile.participant
+    container_name: participant_payment_service
+    ports:
+      - "50052:50052"
+      - "60052:60052"
+    networks:
+      - twopc-network
+    environment:
+      - VOTING_PORT=50052
+      - DECISION_PORT=60052
+      - PARTICIPANT_ID=PARTICIPANT_2
+      - SERVICE_NAME=PaymentService
+
+  # Participant 3: Booking Service
+  participant3:
+    build:
+      context: .
+      dockerfile: Dockerfile.participant
+    container_name: participant_booking_service
+    ports:
+      - "50053:50053"
+      - "60053:60053"
+    networks:
+      - twopc-network
+    environment:
+      - VOTING_PORT=50053
+      - DECISION_PORT=60053
+      - PARTICIPANT_ID=PARTICIPANT_3
+      - SERVICE_NAME=BookingService
+
+  # Participant 4: Notification Service
+  participant4:
+    build:
+      context: .
+      dockerfile: Dockerfile.participant
+    container_name: participant_notification_service
+    ports:
+      - "50054:50054"
+      - "60054:60054"
+    networks:
+      - twopc-network
+    environment:
+      - VOTING_PORT=50054
+      - DECISION_PORT=60054
+      - PARTICIPANT_ID=PARTICIPANT_4
+      - SERVICE_NAME=NotificationService
+
+  # Participant 5: Analytics Service
+  participant5:
+    build:
+      context: .
+      dockerfile: Dockerfile.participant
+    container_name: participant_analytics_service
+    ports:
+      - "50055:50055"
+      - "60055:60055"
+    networks:
+      - twopc-network
+    environment:
+      - VOTING_PORT=50055
+      - DECISION_PORT=60055
+      - PARTICIPANT_ID=PARTICIPANT_5
+      - SERVICE_NAME=AnalyticsService
+
+networks:
+  twopc-network:
+    driver: bridge

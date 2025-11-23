@@ -1,0 +1,21 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy proto files and generated code
+COPY two_phase_commit.proto .
+COPY two_phase_commit_pb2.py .
+COPY two_phase_commit_pb2_grpc.py .
+
+# Copy participant code
+COPY participant.py .
+
+# Expose port (will be overridden by docker-compose)
+EXPOSE 50051
+
+# Run participant
+CMD ["python", "participant.py"]
